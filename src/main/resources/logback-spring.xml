@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="MDC_PATTERN" value='${MDC_PATTERN:-{
+        "trace_id": "%mdc{traceId}",
+        "span_id": "%mdc{spanId}",
+        "parent_id": "%mdc{parentId}",
+        "domain_id": "%mdc{domainId}"}
+    }'/>
+
+    <!-- 構造化ログを出力する appender -->
+    <appender name="STRUCTURED" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <fieldName>logged_at</fieldName>
+                    <timeZone>UTC</timeZone>
+                    <pattern>yyyy-MM-dd'T'HH:mm:ss.SSSZZ</pattern>
+                </timestamp>
+                <logLevel>
+                    <fieldName>severity</fieldName>
+                </logLevel>
+                <message/>
+                <arguments/>
+
+                <!-- 例外 -->
+                <stackTrace/>
+                <throwableClassName/>
+                <throwableRootCauseClassName/>
+                <stackHash/>
+
+                <!-- 文脈の情報 -->
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                </loggerName>
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+                <pattern>
+                    <omitEmptyFields>true</omitEmptyFields>
+                    <pattern>${MDC_PATTERN}</pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STRUCTURED" />
+    </root>
+</configuration>
